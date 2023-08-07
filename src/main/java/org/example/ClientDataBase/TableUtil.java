@@ -1,4 +1,4 @@
-package org.example;
+package org.example.ClientDataBase;
 
 public interface TableUtil {
     public int askTableNumber();

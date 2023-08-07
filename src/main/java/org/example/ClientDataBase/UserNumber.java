@@ -1,9 +1,9 @@
-package org.example;
+package org.example.ClientDataBase;
 
 import java.sql.*;
 import java.util.Scanner;
 
-public class Number extends DataBase implements NumberUtil {
+public class UserNumber extends DataBase implements NumberUtil {
     private String clientNumber;
 
     final private static Connection databaseConn;
@@ -18,7 +18,7 @@ public class Number extends DataBase implements NumberUtil {
     }
     public static void numberMenu(){
         DataBase.driverConnections();
-        Number number = new Number();
+        UserNumber number = new UserNumber();
         String clientNumber = number.askNumber();
         if (number.numberComparison(clientNumber, number.get())) number.set(clientNumber, "Number");
     }

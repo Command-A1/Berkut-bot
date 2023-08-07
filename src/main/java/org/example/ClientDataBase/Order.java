@@ -1,8 +1,8 @@
-package org.example;
+package org.example.ClientDataBase;
 
 import java.sql.*;
 
-public class Order extends DataBase implements OrderUtil{
+public class Order extends DataBase implements OrderUtil {
     final private static Connection databaseConn;
 
     static {
