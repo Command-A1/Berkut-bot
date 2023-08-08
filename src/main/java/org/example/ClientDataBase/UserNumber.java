@@ -1,5 +1,7 @@
 package org.example.ClientDataBase;
 
+import org.telegram.telegrambots.meta.api.objects.Message;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -10,70 +12,57 @@ public class UserNumber extends DataBase implements NumberUtil {
 
     static {
         try {
-            databaseConn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/menu_db",
-                    "postgres","120304");
+            databaseConn = DriverManager.getConnection("jdbc:postgresql://containers-us-west-117.railway.app:7441/railway",
+                    "postgres", "29US5H0SPDjZ67I3C6Sp");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public static void numberMenu(){
+
+    public void sortNumber(Message message) {
+        String num = message.getContact().getPhoneNumber().substring(2);
         DataBase.driverConnections();
-        UserNumber number = new UserNumber();
-        String clientNumber = number.askNumber();
-        if (number.numberComparison(clientNumber, number.get())) number.set(clientNumber, "Number");
+        if (numberComparison(message.getContact().getPhoneNumber().substring(2), get()))
+            set(message.getChatId(), message.getContact().getFirstName(), Long.parseLong(num));
     }
 
     @Override
-     public boolean checkNumber(String clientNumber) {
+    public void set(long id, String userName, long number) {
+        try {
+            Statement stmt = databaseConn.createStatement();
+            stmt.executeUpdate("insert into usersnumbers (userid, username, number) values ('" + id + "','" + userName + "','" + number + "')");
+            databaseConn.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean checkNumber(String clientNumber) {
         final String numRegex = "^\\d{10}";
-        return this.clientNumber.matches(numRegex);
-    }
-
-    @Override
-    public String askNumber() {
-        Scanner scanner = new Scanner(System.in);
-
-        do {
-            System.out.println("Введите номер телефона");
-            System.out.print("+7");
-            this.clientNumber = scanner.nextLine();
-
-            if (checkNumber(this.clientNumber)) break;
-
-            System.out.println("Неверный набран номер, пожалуйста повторите ввод");
-        } while (true);
-        scanner.close();
-
-        return this.clientNumber;
+        return clientNumber.matches(numRegex);
     }
 
     @Override
     public ResultSet get() {
         try {
             Statement stmt = databaseConn.createStatement();
-            return stmt.executeQuery("select number from number_repository");
+            return stmt.executeQuery("select number from usersnumbers");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public boolean numberComparison(String number, ResultSet allNumbers){
+
+    public boolean numberComparison(String number, ResultSet allNumbers) {
         try {
             while (allNumbers.next())
                 if (number.equals(allNumbers.getString("number"))) return false;
             return true;
-        }catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-    }
-    @Override
-    public void set(String number, String where) {
-        try {
-            Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into number_repository (" + where + ") values ('" + number +"')");
-            databaseConn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 }

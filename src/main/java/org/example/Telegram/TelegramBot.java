@@ -36,9 +36,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage.setChatId(update.getMessage().getChatId()); // chatId уникальный номер пользователя
 
             if (message.hasContact() && userNumber.checkNumber(message.getContact().getPhoneNumber().substring(2))) {
+
                 contactUser = message.getContact();
                 checkNumber = true;
-                UserNumber.numberMenu();
+                userNumber.sortNumber(message);
+
             }
             if (!checkNumber) {
                 sendMessage(Emoji.WELCOME.get());
