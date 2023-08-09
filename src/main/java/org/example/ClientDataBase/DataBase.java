@@ -12,5 +12,5 @@ abstract public class DataBase {
         }
     }
     abstract public ResultSet get();
-    abstract public void set(long something1, String something2, long something3);
+    abstract public void set(String something1, String something2, String something3);
 }

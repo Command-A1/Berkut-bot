@@ -23,11 +23,11 @@ public class UserNumber extends DataBase implements NumberUtil {
         String num = message.getContact().getPhoneNumber().substring(2);
         DataBase.driverConnections();
         if (numberComparison(message.getContact().getPhoneNumber().substring(2), get()))
-            set(message.getChatId(), message.getContact().getFirstName(), Long.parseLong(num));
+            set(message.getChatId().toString(), message.getContact().getFirstName(), num);
     }
 
     @Override
-    public void set(long id, String userName, long number) {
+    public void set(String id, String userName, String number) {
         try {
             Statement stmt = databaseConn.createStatement();
             stmt.executeUpdate("insert into usersnumbers (userid, username, number) values ('" + id + "','" + userName + "','" + number + "')");
@@ -42,7 +42,16 @@ public class UserNumber extends DataBase implements NumberUtil {
         final String numRegex = "^\\d{10}";
         return clientNumber.matches(numRegex);
     }
-
+    public String getUserName(String userId) {
+        try {
+            Statement stmt = databaseConn.createStatement();
+            ResultSet userName = stmt.executeQuery("select username from usersnumbers where userid like '" + userId + "'");
+            userName.next();
+            return userName.getString("username");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public ResultSet get() {
         try {
@@ -53,7 +62,24 @@ public class UserNumber extends DataBase implements NumberUtil {
         }
     }
 
+    public ResultSet getAllId() {
+        try {
+            Statement stmt = databaseConn.createStatement();
+            return stmt.executeQuery("select userid from usersnumbers");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public boolean userIdComparison(long id, ResultSet allUserId) {
+        try {
+            while (allUserId.next())
+                if (Long.toString(id).equals(allUserId.getString("userid"))) return true;
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public boolean numberComparison(String number, ResultSet allNumbers) {
         try {
             while (allNumbers.next())

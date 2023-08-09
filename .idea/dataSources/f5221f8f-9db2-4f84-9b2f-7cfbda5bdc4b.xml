@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.43">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>584</IntrospectionStateNumber>
+      <IntrospectionStateNumber>685</IntrospectionStateNumber>
       <ServerVersion>13.2</ServerVersion>
       <StartupTime>1691489055</StartupTime>
       <TimeZones>true ACDT
@@ -824,7 +824,7 @@ true posixrules
 17390||10|C|G
 17390||-9223372036854775808|U|G
 17390||10|U|G</Grants>
-      <IntrospectionStateNumber>584</IntrospectionStateNumber>
+      <IntrospectionStateNumber>685</IntrospectionStateNumber>
       <ObjectId>17470</ObjectId>
       <Relations>sequence|table|16942|16944|1
 sequence|table|16977|16979|1
@@ -4190,7 +4190,7 @@ sequence|table|17096|17098|1
     <schema id="260" parent="4" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>584</IntrospectionStateNumber>
+      <IntrospectionStateNumber>685</IntrospectionStateNumber>
       <ObjectId>2200</ObjectId>
       <StateNumber>287</StateNumber>
       <OwnerName>postgres</OwnerName>
@@ -4204,14 +4204,14 @@ sequence|table|17096|17098|1
       <Event>ddl_command_end</Event>
       <ObjectId>17309</ObjectId>
       <StateNumber>488</StateNumber>
-      <Tags>ALTER TABLE
-CREATE TRIGGER
-CREATE TABLE
+      <Tags>ALTER INDEX
+ALTER TABLE
 CREATE INDEX
-ALTER INDEX
-DROP TABLE
+CREATE TABLE
+CREATE TRIGGER
 DROP INDEX
-DROP SCHEMA</Tags>
+DROP SCHEMA
+DROP TABLE</Tags>
       <CallRoutineId>17308</CallRoutineId>
     </trigger>
     <trigger id="263" parent="4" name="timescaledb_ddl_sql_drop">
