@@ -5,8 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import java.sql.*;
 import java.util.Scanner;
 
-public class UserNumber extends DataBase implements NumberUtil {
-    private String clientNumber;
+public class UserNumber extends DataBase {
 
     final private static Connection databaseConn;
 
@@ -18,16 +17,13 @@ public class UserNumber extends DataBase implements NumberUtil {
             throw new RuntimeException(e);
         }
     }
-
     public void sortNumber(Message message) {
         String num = message.getContact().getPhoneNumber().substring(2);
         DataBase.driverConnections();
-        if (numberComparison(message.getContact().getPhoneNumber().substring(2), get()))
-            set(message.getChatId().toString(), message.getContact().getFirstName(), num);
+        if (numberComparison(message.getContact().getPhoneNumber().substring(2), getAllNumbers()))
+            setNumber(message.getChatId().toString(), message.getContact().getFirstName(), num);
     }
-
-    @Override
-    public void set(String id, String userName, String number) {
+    public void setNumber(String id, String userName, String number) {
         try {
             Statement stmt = databaseConn.createStatement();
             stmt.executeUpdate("insert into usersnumbers (userid, username, number) values ('" + id + "','" + userName + "','" + number + "')");
@@ -37,7 +33,6 @@ public class UserNumber extends DataBase implements NumberUtil {
         }
     }
 
-    @Override
     public boolean checkNumber(String clientNumber) {
         final String numRegex = "^\\d{10}";
         return clientNumber.matches(numRegex);
@@ -52,30 +47,10 @@ public class UserNumber extends DataBase implements NumberUtil {
             throw new RuntimeException(e);
         }
     }
-    @Override
-    public ResultSet get() {
+    public ResultSet getAllNumbers() {
         try {
             Statement stmt = databaseConn.createStatement();
             return stmt.executeQuery("select number from usersnumbers");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public ResultSet getAllId() {
-        try {
-            Statement stmt = databaseConn.createStatement();
-            return stmt.executeQuery("select userid from usersnumbers");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public boolean userIdComparison(long id, ResultSet allUserId) {
-        try {
-            while (allUserId.next())
-                if (Long.toString(id).equals(allUserId.getString("userid"))) return true;
-            return false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -89,6 +64,4 @@ public class UserNumber extends DataBase implements NumberUtil {
             throw new RuntimeException(e);
         }
     }
-
-
 }

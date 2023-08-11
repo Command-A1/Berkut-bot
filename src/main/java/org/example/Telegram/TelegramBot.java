@@ -1,6 +1,7 @@
 package org.example.Telegram;
 
 
+import org.example.ClientDataBase.UserId;
 import org.example.ClientDataBase.UserNumber;
 import org.example.Telegram.KeyBoard.InLineKeyboardButtonCategoryDishes;
 import org.example.Telegram.KeyBoard.ReplyKeyBoardUser;
@@ -20,6 +21,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private Message message;
     private ReplyKeyBoardUser replyKeyBoardUser = new ReplyKeyBoardUser();
     private UserNumber userNumber = new UserNumber();
+    private UserId userId = new UserId();
     private Contact contactUser;
 
     public String getBotUsername() {
@@ -43,7 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 initializeInLineKeyboardCategory();
 
             }
-            if (!userNumber.userIdComparison(update.getMessage().getChatId(), userNumber.getAllId())) {
+            if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
                 creatingMessageUserGreetingRegistration();
             } else {
                 switch (message.getText()) {

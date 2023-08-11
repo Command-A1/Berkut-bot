@@ -11,6 +11,4 @@ abstract public class DataBase {
             throw new RuntimeException(e);
         }
     }
-    abstract public ResultSet get();
-    abstract public void set(String something1, String something2, String something3);
 }
