@@ -2,18 +2,8 @@ package org.example.ClientDataBase;
 
 import java.sql.*;
 
-public class UserId {
+public class UserId extends DataBase {
 
-    final private static Connection databaseConn;
-
-    static {
-        try {
-            databaseConn = DriverManager.getConnection("jdbc:postgresql://containers-us-west-117.railway.app:7441/railway",
-                    "postgres", "29US5H0SPDjZ67I3C6Sp");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
     public ResultSet getAllId() {
         try {
             Statement stmt = databaseConn.createStatement();

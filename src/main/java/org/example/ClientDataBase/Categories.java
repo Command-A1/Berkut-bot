@@ -1,32 +1,39 @@
 package org.example.ClientDataBase;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class Categories extends DataBase {
+public class Categories extends DataBase implements ISortedMapBD{
 
-    final private static Connection databaseConn;
 
-    static {
+    public ArrayList<Map<Integer, String>> getAllCategories() {
         try {
-            databaseConn = DriverManager.getConnection("jdbc:postgresql://containers-us-west-117.railway.app:7441/railway",
-                    "postgres", "29US5H0SPDjZ67I3C6Sp");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<String> getAllCategories() {
-        try {
-            List<String> allCategories = new ArrayList<>();
+            TreeMap<Integer, String> treeMap = new TreeMap<>();
             Statement stmt = databaseConn.createStatement();
-            ResultSet categories = stmt.executeQuery("select name from categories");
+            ResultSet categories = stmt.executeQuery("select * from categories");
+
             while (categories.next())
-                allCategories.add(categories.getString("name"));
-            return allCategories;
+                treeMap.put(Integer.parseInt(categories.getString("id")), categories.getString("name"));
+            return sortedCategoriesTreeMap(treeMap);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+//    private ArrayList<Map<Integer, String>> sortedCategoriesTreeMap(){
+//        hashMapArrayListCategories.add(0, new TreeMap<>());
+//        int c = 0;
+//        int i = 0;
+//
+//        for (Map.Entry entry: treeMap.entrySet()){
+//            hashMapArrayListCategories.get(c).put((Integer) entry.getKey(), (String) entry.getValue());
+//            i++;
+//            if (i == 4 && treeMap.size()-1 != (Integer)entry.getKey()) {
+//                i = 0;
+//                c++;
+//                hashMapArrayListCategories.add(c, new TreeMap<>());
+//            }
+//        }
+//        return hashMapArrayListCategories;
+//    }
 }

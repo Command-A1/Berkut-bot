@@ -2,17 +2,6 @@ package org.example.ClientDataBase;
 import java.sql.*;
 
 public class Order extends DataBase {
-    final private static Connection databaseConn;
-
-    static {
-        try {
-            databaseConn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/menu_db",
-                    "postgres", "120304");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void createOrder(String userId) {
         try {
             Statement stmt = databaseConn.createStatement();

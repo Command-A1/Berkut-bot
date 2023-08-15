@@ -8,9 +8,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class Main {
 
     public static void main(String[] args) {
-//        Number.numberMenu();
-//        Order order = new Order();
-//        order.createNewOrder();
+
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(new TelegramBot());
@@ -20,4 +18,3 @@ public class Main {
     }
 }
 
-//+995595022429 +89374140377 +79374140377 +79379863541 number_repository

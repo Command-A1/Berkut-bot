@@ -3,26 +3,34 @@ package org.example.Telegram;
 
 import org.example.ClientDataBase.UserId;
 import org.example.ClientDataBase.UserNumber;
-import org.example.Telegram.KeyBoard.InLineKeyboardButtonCategoryDishes;
-import org.example.Telegram.KeyBoard.ReplyKeyBoardUser;
+import org.example.Telegram.KeyBoard.InLine.InLineKeyBoardListDishes;
+import org.example.Telegram.KeyBoard.InLine.InLineKeyboardButtonKitchenCategory;
+import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardGetNumber;
+import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardUserMenu;
+import org.example.Telegram.LibraryDB.ListNameDBTable;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.Map;
+
 public class TelegramBot extends TelegramLongPollingBot {
     //private long chatId;
     private SendMessage sendMessage = new SendMessage();
-    private InLineKeyboardButtonCategoryDishes categoryDishes = new InLineKeyboardButtonCategoryDishes();
+    private InLineKeyboardButtonKitchenCategory categoryDishes;
     private Update update;
     private Message message;
-    private ReplyKeyBoardUser replyKeyBoardUser = new ReplyKeyBoardUser();
+    private ReplyKeyBoardGetNumber replyKeyBoardGetNumber;
+    private ReplyKeyBoardUserMenu replyKeyBoardUserMenu = new ReplyKeyBoardUserMenu();
+    private InLineKeyBoardListDishes replyKeyBoardListDishes;
     private UserNumber userNumber = new UserNumber();
     private UserId userId = new UserId();
-    private Contact contactUser;
+    private boolean inCategoryUser = true;
+    private String nameCategoryTableDataBaseChoosingUser;
 
     public String getBotUsername() {
         return "@BerkutSamarabot";
@@ -42,21 +50,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (message.hasContact() && userNumber.checkNumber(message.getContact().getPhoneNumber().substring(2))) {
                 recordUserIdAndUserNumber();
-                initializeInLineKeyboardCategory();
-
+                initializeKeyboardUserMenu();
             }
             if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
                 creatingMessageUserGreetingRegistration();
-            } else {
+            } else if (message.hasText()) {
                 switch (message.getText()) {
                     case "/start":
-
                         sendMessage(Emoji.WELCOME.get());
                         sendMessage("Я вас помню, " + userNumber.getUserName(sendMessage.getChatId()) + " !");
-
+                        initializeKeyboardUserMenu();
                         break;
-                    case "Назад":
-                        sendMessage("Вернулись...");
+                    case "Меню \uD83D\uDCCB":
+                        initializeInLineKeyboardCategory();
                         break;
                     default:
                         sendMessage("Пожалуйста отправьте ваш номер для регистрации в нашей системе");
@@ -64,14 +70,78 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
         }
+        if (update.hasCallbackQuery()) {
+            if (update.getCallbackQuery().getData().equals("след")) {
+                editMessage();
+            } else if (update.getCallbackQuery().getData().equals("пред")) {
+                editMessage();
+            } else if (chooseCategory()) {
+                editMessageOnListDishes();
+                inCategoryUser = false;
+           }
+//            else if (!inCategoryUser &&) {
+//
+//            }
+        }
+
+
+    }
+
+//    private boolean chooseDish() {
+//
+//    }
+
+    private void outputDishSelected() {
+
+    }
+
+    private boolean chooseCategory() {
+        for (Map.Entry entry : ListNameDBTable.getListNameDBTable().entrySet()) {
+            if (entry.getKey().equals(Integer.parseInt(update.getCallbackQuery().getData()))) {
+                nameCategoryTableDataBaseChoosingUser = (String) entry.getValue();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void editMessageOnListDishes() {
+        deleteMessage();
+        initializeKeyboardListDishes();
+    }
+
+    private void initializeKeyboardListDishes() {
+        replyKeyBoardListDishes = new InLineKeyBoardListDishes(nameCategoryTableDataBaseChoosingUser);
+        sendMessage.setText("Выберите блюдо " + Emoji.DISH.get());
+        executeMessage(replyKeyBoardListDishes.listCategory(sendMessage, " "));
+    }
+
+    private void changeKeyboardListDishes() {
+        executeMessage(replyKeyBoardListDishes.listCategory(sendMessage, update.getCallbackQuery().getData()));
+    }
+
+    private void editMessage() {
+        deleteMessage();
+        if (inCategoryUser) changeInLineKeyboardCategory();
+        else changeKeyboardListDishes();
+    }
+
+    private void changeInLineKeyboardCategory() {
+        executeMessage(categoryDishes.listCategory(sendMessage, update.getCallbackQuery().getData()));
+    }
+
+    private void initializeKeyboardUserMenu() {
+        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(sendMessage));
     }
 
     private void initializeInLineKeyboardCategory() {
-        executeMessage(categoryDishes.listCategoryDishes(sendMessage));
+        categoryDishes = new InLineKeyboardButtonKitchenCategory();
+        inCategoryUser = true;
+        sendMessage.setText("Выберите категорию" + Emoji.MENU.get());
+        executeMessage(categoryDishes.listCategory(sendMessage, " "));
     }
 
     private void recordUserIdAndUserNumber() {
-        contactUser = message.getContact();
         userNumber.sortNumber(message);
     }
 
@@ -82,7 +152,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void initializeKeyboardGetNumber() {
-        executeMessage(replyKeyBoardUser.keyboardGetNumber(sendMessage));
+        replyKeyBoardGetNumber = new ReplyKeyBoardGetNumber();
+        executeMessage(replyKeyBoardGetNumber.keyboardGetNumber(sendMessage));
     }
 
     private void sendMessage(String text) {
@@ -94,6 +165,18 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
+            System.out.println("Ошибка "+ e.getMessage());
+        }
+    }
+
+    private void deleteMessage() {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(sendMessage.getChatId());
+        deleteMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+        try {
+            execute(deleteMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
         }
     }
 }

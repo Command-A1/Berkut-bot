@@ -6,17 +6,6 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class UserNumber extends DataBase {
-
-    final private static Connection databaseConn;
-
-    static {
-        try {
-            databaseConn = DriverManager.getConnection("jdbc:postgresql://containers-us-west-117.railway.app:7441/railway",
-                    "postgres", "29US5H0SPDjZ67I3C6Sp");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
     public void sortNumber(Message message) {
         String num = message.getContact().getPhoneNumber().substring(2);
         DataBase.driverConnections();

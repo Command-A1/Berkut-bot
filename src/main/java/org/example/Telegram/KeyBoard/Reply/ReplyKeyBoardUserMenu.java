@@ -1,8 +1,7 @@
-package org.example.Telegram.KeyBoard;
+package org.example.Telegram.KeyBoard.Reply;
 
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -10,27 +9,30 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplyKeyBoardUser {
+public class ReplyKeyBoardUserMenu {
     private ReplyKeyboardMarkup keyboardMarkup;
     private List<KeyboardRow> keyboardRowsVertical;
+    private KeyboardButton button;
 
     private KeyboardRow rowHorizontal;
 
-    public SendMessage keyboardGetNumber(SendMessage message) {
+    public SendMessage keyboardUserMenu(SendMessage message) {
         keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardRowsVertical = new ArrayList<>();
-
+        message.setText("Приступим к заказу!");
         rowHorizontal = new KeyboardRow();
-        KeyboardButton e = new KeyboardButton("Отправьте номер" + Emoji.TELEPHONE.get());
-        e.setRequestContact(true);
-        rowHorizontal.add(e);
+        button = new KeyboardButton("Меню " + Emoji.MENU.get());
+        rowHorizontal.add(button);
+        button = new KeyboardButton("Заказ " + Emoji.ORDER_LIST.get());
+        rowHorizontal.add(button);
+        button = new KeyboardButton("Оформить заказ " + Emoji.WHITE_CHECK_MARK.get());
+        rowHorizontal.add(button);
 
         keyboardRowsVertical.add(rowHorizontal);
 
         keyboardMarkup.setKeyboard(keyboardRowsVertical);
         message.setReplyMarkup(keyboardMarkup);
-        message.setText("Отправь мне свой номер телефона");
 
         return message;
     }
