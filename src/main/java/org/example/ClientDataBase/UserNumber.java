@@ -3,7 +3,6 @@ package org.example.ClientDataBase;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.sql.*;
-import java.util.Scanner;
 
 public class UserNumber extends DataBase {
     public void sortNumber(Message message) {

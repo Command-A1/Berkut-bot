@@ -17,6 +17,4 @@ public class Dishes extends DataBase implements ISortedMapBD {
             throw new RuntimeException(e);
         }
     }
-
-
 }

@@ -1,11 +1,13 @@
 package org.example.ClientDataBase;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Order extends DataBase {
     public void createOrder(String userId) {
         try {
             Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into order (id, table) values ('" + userId + "')");
+            stmt.executeUpdate("insert into order (id) values ('" + userId + "')");
             databaseConn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -22,34 +24,44 @@ public class Order extends DataBase {
         }
     }
 
-    public void changeProcessing(String userId) {
+    public void deleteDish(String dishId){
+
+    }
+
+    public ArrayList<String> getAllDishesIdFromOrder(String userId){
         try {
             Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into order (proccesing) values ('true')  where userid like '" + userId + "'");
+            ResultSet allDishesId =  stmt.executeQuery("select dishesid from order where userid like '" + userId + "'");
+            allDishesId.next();
+            ArrayList<String> arrayAllDishesId = new ArrayList<>();
+            String[] ides = allDishesId.getString("dishesid").split(",");
+            arrayAllDishesId.addAll(Arrays.asList(ides));
+            return arrayAllDishesId;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void changeState (String userId, String field) {
+        try {
+            Statement stmt = databaseConn.createStatement();
+            stmt.executeUpdate("insert into order ("+ field +") values ('true')  where userid like '" + userId + "'");
             databaseConn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void changeAccepting(String userId) {
+    public void addTable(String userId, String table){
         try {
             Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into order (accepting) values ('true')  where userid like '" + userId + "'");
+            stmt.executeUpdate("insert into order (table) values (" + table + ")  where userid like '" + userId + "'");
             databaseConn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void changeState (String userId) {
-        try {
-            Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into order (accepting) values ('true')  where userid like '" + userId + "'");
-            databaseConn.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
 

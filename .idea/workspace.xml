@@ -5,27 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8507145f-71dd-437e-95cd-8caf93876202" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dish.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dishes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/ISortedMapBD.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyBoardListDishes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardButtonKitchenCategory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardSelectedDish.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/Reply/ReplyKeyBoardUserMenu.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/LibraryDB/ListNameDBTable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/DbLibrary.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Categories.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Categories.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/DataBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/DataBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dishes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dishes.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/UserId.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/UserId.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/UserNumber.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/UserNumber.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLineKeyboardButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardButton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLineKeyboardButtonCategoryDishes.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/ReplyKeyBoardUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/Reply/ReplyKeyBoardGetNumber.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Emoji.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Emoji.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/TelegramBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/TelegramBot.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
