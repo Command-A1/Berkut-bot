@@ -26,8 +26,6 @@ public class ReplyKeyBoardUserMenu {
         rowHorizontal.add(button);
         button = new KeyboardButton("Заказ " + Emoji.ORDER_LIST.get());
         rowHorizontal.add(button);
-        button = new KeyboardButton("Оформить заказ " + Emoji.WHITE_CHECK_MARK.get());
-        rowHorizontal.add(button);
 
         keyboardRowsVertical.add(rowHorizontal);
 

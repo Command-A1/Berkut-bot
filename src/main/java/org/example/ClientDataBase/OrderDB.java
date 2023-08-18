@@ -3,7 +3,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Order extends DataBase {
+public class OrderDB extends DataBase {
     public void createOrder(String userId) {
         try {
             Statement stmt = databaseConn.createStatement();

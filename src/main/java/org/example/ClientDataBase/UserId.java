@@ -6,7 +6,7 @@ public class UserId extends DataBase {
 
     public ResultSet getAllId() {
         try {
-            Statement stmt = databaseConn.createStatement();
+            Statement stmt = databaseConn.createStatement(); // здесь выкидывает ощибку если неправильно вводить сообщения вместо контактов
             return stmt.executeQuery("select userid from usersnumbers");
         } catch (SQLException e) {
             throw new RuntimeException(e);

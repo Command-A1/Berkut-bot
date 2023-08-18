@@ -6,7 +6,7 @@ import java.sql.*;
 
 public class UserNumber extends DataBase {
     public void sortNumber(Message message) {
-        String num = message.getContact().getPhoneNumber().substring(2);
+        String num = message.getContact().getPhoneNumber().substring(1);
         DataBase.driverConnections();
         if (numberComparison(message.getContact().getPhoneNumber().substring(2), getAllNumbers()))
             setNumber(message.getChatId().toString(), message.getContact().getFirstName(), num);
@@ -15,7 +15,6 @@ public class UserNumber extends DataBase {
         try {
             Statement stmt = databaseConn.createStatement();
             stmt.executeUpdate("insert into usersnumbers (userid, username, number) values ('" + id + "','" + userName + "','" + number + "')");
-            databaseConn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

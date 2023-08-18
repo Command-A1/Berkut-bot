@@ -1,21 +1,22 @@
 package org.example.Telegram.KeyBoard.InLine;
 
+import org.example.Telegram.LibraryDB.OrderUser;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import javax.validation.constraints.Null;
 import java.util.*;
 
 public abstract class InLineKeyboardButton {
-    public ArrayList<Map<Integer, String>> hashMapArrayList;
-    private int numberMenu = 0;
-    private InlineKeyboardMarkup markupInLine;
-    private List<List<InlineKeyboardButton>> rowsInLine;
-    private List<InlineKeyboardButton> rowInLine;
+    protected ArrayList<Map<Integer, String>> hashMapArrayList;
+    protected int id = 0;
+    protected InlineKeyboardMarkup markupInLine;
+    protected List<List<InlineKeyboardButton>> rowsInLine;
+    protected List<InlineKeyboardButton> rowInLine;
+    protected OrderUser orderUser;
 
-    private void initializationInlineKeyboard() {
+    public void initializationInlineKeyboard() {
         markupInLine = new InlineKeyboardMarkup();
         rowsInLine = new ArrayList<>();
         rowInLine = new ArrayList<>();
@@ -27,7 +28,7 @@ public abstract class InLineKeyboardButton {
 
         checkStep(step);
 
-        for (Map.Entry<Integer, String> entry : hashMapArrayList.get(numberMenu).entrySet()) {
+        for (Map.Entry<Integer, String> entry : hashMapArrayList.get(id).entrySet()) {
             rowInLine.add(new InlineKeyboardButton());
             rowInLine.get(0).setText(entry.getValue());
             rowInLine.get(0).setCallbackData(entry.getKey().toString());
@@ -42,30 +43,69 @@ public abstract class InLineKeyboardButton {
         return message;
     }
 
+
     public void checkStep(String step) {
-        if (step.equals("след"))
-            numberMenu++;
-        else if (step.equals("пред")) numberMenu--;
+        switch (step) {
+            case "след":
+                id++;
+                break;
+            case "пред":
+                id--;
+                break;
+            case "Добавить в заказ":
+                orderUser.addCountDishInOrderUser(id);
+                break;
+            case "удалить":
+                orderUser.removeCountDishInOrderUser(id);
+                break;
+        }
     }
 
+    public void addButtonReturnToMenu(int number) {
+        rowInLine.add(new InlineKeyboardButton());
+        rowInLine.get(number).setText(Emoji.MENU.get());
+        rowInLine.get(number).setCallbackData("Вернуться в Список Блюд");
+    }
+
+    public void addButtonRemoveOrder(int number) {
+        rowInLine.add(new InlineKeyboardButton());
+        rowInLine.get(number).setText(Emoji.X.get());
+        rowInLine.get(number).setCallbackData("удалить");
+
+    }
+
+    public void addButtonAddToOrder(int number) {
+
+        rowInLine.add(new InlineKeyboardButton());
+        if (orderUser.getMapOrderUser().containsKey(id) && !orderUser.getMapOrderUser().get(id).equals(0))
+            rowInLine.get(number).setText(Emoji.WHITE_CHECK_MARK.get() + " — " + orderUser.getMapOrderUser().get(id));
+        else rowInLine.get(number).setText(Emoji.WHITE_CHECK_MARK.get());
+        rowInLine.get(number).setCallbackData("Добавить в заказ");
+    }
+
+    public void addButtonStepPrevious(int number) {
+        rowInLine.add(new InlineKeyboardButton());
+        rowInLine.get(number).setText(Emoji.ARROW_LEFT.get());
+        rowInLine.get(number).setCallbackData("пред");
+    }
+
+    public void addButtonStepNext(int number) {
+        rowInLine.add(new InlineKeyboardButton());
+        rowInLine.get(number).setText(Emoji.ARROW_RIGHT.get());
+        rowInLine.get(number).setCallbackData("след");
+    }
+
+
     public void addHelpButton() {
-        if (numberMenu != 0 && numberMenu != hashMapArrayList.size() - 1) {
-            rowInLine.add(new InlineKeyboardButton());
-            rowInLine.get(0).setText("пред" + Emoji.ARROW_LEFT.get());
-            rowInLine.get(0).setCallbackData("пред");
-            rowInLine.add(new InlineKeyboardButton());
-            rowInLine.get(1).setText("след" + Emoji.ARROW_RIGHT.get());
-            rowInLine.get(1).setCallbackData("след");
+        if (id != 0 && id != hashMapArrayList.size() - 1) {
+            addButtonStepPrevious(0);
+            addButtonStepNext(1);
             rowsInLine.add(rowInLine);
-        } else if (numberMenu == 0) {
-            rowInLine.add(new InlineKeyboardButton());
-            rowInLine.get(0).setText("след" + Emoji.ARROW_RIGHT.get());
-            rowInLine.get(0).setCallbackData("след");
+        } else if (id == 0) {
+            addButtonStepNext(0);
             rowsInLine.add(rowInLine);
         } else {
-            rowInLine.add(new InlineKeyboardButton());
-            rowInLine.get(0).setText("пред" + Emoji.ARROW_LEFT.get());
-            rowInLine.get(0).setCallbackData("пред");
+            addButtonStepPrevious(0);
             rowsInLine.add(rowInLine);
         }
     }

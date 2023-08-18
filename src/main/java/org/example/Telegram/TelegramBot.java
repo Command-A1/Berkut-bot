@@ -1,13 +1,18 @@
 package org.example.Telegram;
 
 
+import org.example.ClientDataBase.Dish;
+import org.example.ClientDataBase.OrderDB;
 import org.example.ClientDataBase.UserId;
 import org.example.ClientDataBase.UserNumber;
 import org.example.Telegram.KeyBoard.InLine.InLineKeyBoardListDishes;
 import org.example.Telegram.KeyBoard.InLine.InLineKeyboardButtonKitchenCategory;
+import org.example.Telegram.KeyBoard.InLine.InLineKeyboardForOrder;
+import org.example.Telegram.KeyBoard.InLine.InLineKeyboardSelectedDish;
 import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardGetNumber;
 import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardUserMenu;
 import org.example.Telegram.LibraryDB.ListNameDBTable;
+import org.example.Telegram.LibraryDB.OrderUser;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,14 +28,25 @@ public class TelegramBot extends TelegramLongPollingBot {
     private SendMessage sendMessage = new SendMessage();
     private InLineKeyboardButtonKitchenCategory categoryDishes;
     private Update update;
+    private Dish dish = new Dish();
     private Message message;
+    private OrderUser orderUser = new OrderUser(dish);
+    private OrderDB orderDB = new OrderDB();
+    private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(orderUser);
     private ReplyKeyBoardGetNumber replyKeyBoardGetNumber;
+    private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(orderUser, dish);
+
     private ReplyKeyBoardUserMenu replyKeyBoardUserMenu = new ReplyKeyBoardUserMenu();
     private InLineKeyBoardListDishes replyKeyBoardListDishes;
     private UserNumber userNumber = new UserNumber();
     private UserId userId = new UserId();
     private boolean inCategoryUser = true;
+    private boolean inDishesUser = false;
+    private boolean inDishUser = false;
+    private boolean confirmOrder = false;
+    private int numberTableUser;
     private String nameCategoryTableDataBaseChoosingUser;
+
 
     public String getBotUsername() {
         return "@BerkutSamarabot";
@@ -46,26 +62,33 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
 
             message = update.getMessage();
-            sendMessage.setChatId(update.getMessage().getChatId()); // chatId уникальный номер пользователя
+            sendMessage.setChatId(update.getMessage().getChatId());
 
-            if (message.hasContact() && userNumber.checkNumber(message.getContact().getPhoneNumber().substring(2))) {
+            if (confirmOrder&&message.hasText()) numberTableUser= Integer.parseInt(message.getText());
+
+
+            if (message.hasContact() && userNumber.checkNumber(message.getContact().getPhoneNumber().substring(1))) {
                 recordUserIdAndUserNumber();
                 initializeKeyboardUserMenu();
             }
             if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
                 creatingMessageUserGreetingRegistration();
-            } else if (message.hasText()) {
+            }
+            else if (message.hasText()) {
                 switch (message.getText()) {
                     case "/start":
-                        sendMessage(Emoji.WELCOME.get());
-                        sendMessage("Я вас помню, " + userNumber.getUserName(sendMessage.getChatId()) + " !");
+                        sendMessageOnlyText(Emoji.WELCOME.get());
+                        sendMessageOnlyText("Я вас помню, " + userNumber.getUserName(sendMessage.getChatId()) + " !");
                         initializeKeyboardUserMenu();
                         break;
                     case "Меню \uD83D\uDCCB":
                         initializeInLineKeyboardCategory();
                         break;
+                    case "Заказ \uD83D\uDCDD":
+                        sendOrderToUser();
+                        break;
                     default:
-                        sendMessage("Пожалуйста отправьте ваш номер для регистрации в нашей системе");
+                        sendMessageOnlyText("Не понимаю о чем ВЫ. Воспользуйтесь кнопочками");
                         break;
                 }
             }
@@ -75,37 +98,69 @@ public class TelegramBot extends TelegramLongPollingBot {
                 editMessage();
             } else if (update.getCallbackQuery().getData().equals("пред")) {
                 editMessage();
-            } else if (chooseCategory()) {
-                editMessageOnListDishes();
+            } else if (inCategoryUser) {
+                chooseCategory();
+                outputMessageOnListDishes();
                 inCategoryUser = false;
-           }
-//            else if (!inCategoryUser &&) {
-//
-//            }
+                inDishesUser = true;
+            } else if (inDishesUser) {
+                inDishesUser = false;
+                inDishUser = true;
+                initializeOutputDishSelected();
+            } else if (inDishUser && update.getCallbackQuery().getData().equals("Вернуться в Список Блюд")) {
+                inDishesUser = true;
+                inDishUser = false;
+                outputMessageOnListDishes();
+            } else if (inDishUser && update.getCallbackQuery().getData().equals("Добавить в заказ")) {
+                deleteMessage();
+                editMessageOutputDishSelected();
+            } else if (update.getCallbackQuery().getData().equals("удалить")) {
+                deleteMessage();
+                editMessageOutputDishSelected();
+            }else if (update.getCallbackQuery().getData().equals("очистить")) {
+                orderUser.clearAllOrder();
+                deleteMessage();
+                sendOrderToUser();
+            } else if (update.getCallbackQuery().getData().equals("оформить")) {
+                if (!orderUser.getMapOrderUser().isEmpty()) {
+                    confirmOrder = true;
+                    sendOrderToBD();
+                } else sendMessageOnlyText("Ваш заказ - Пуст. Сначала заполните его! ");
+            }
         }
 
 
     }
 
-//    private boolean chooseDish() {
-//
-//    }
-
-    private void outputDishSelected() {
+    private void sendOrderToBD() {
 
     }
 
-    private boolean chooseCategory() {
+    private void sendOrderToUser() {
+        executeMessage(inLineKeyboardForOrder.createMessageOrderAll(sendMessage));
+    }
+
+    private void initializeOutputDishSelected() {
+        deleteMessage();
+        inLineKeyboardSelectedDish.recordAllDataAboutDishes(nameCategoryTableDataBaseChoosingUser);
+        inLineKeyboardSelectedDish.setIdDish(Integer.parseInt(update.getCallbackQuery().getData()));
+        executeMessage(inLineKeyboardSelectedDish.dishFillData(sendMessage));
+    }
+
+    private void editMessageOutputDishSelected() {
+        inLineKeyboardSelectedDish.checkStep(update.getCallbackQuery().getData());
+        executeMessage(inLineKeyboardSelectedDish.dishFillData(sendMessage));
+    }
+
+    private void chooseCategory() {
         for (Map.Entry entry : ListNameDBTable.getListNameDBTable().entrySet()) {
             if (entry.getKey().equals(Integer.parseInt(update.getCallbackQuery().getData()))) {
                 nameCategoryTableDataBaseChoosingUser = (String) entry.getValue();
-                return true;
             }
         }
-        return false;
     }
 
-    private void editMessageOnListDishes() {
+    private void outputMessageOnListDishes() {
         deleteMessage();
         initializeKeyboardListDishes();
     }
@@ -123,7 +178,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void editMessage() {
         deleteMessage();
         if (inCategoryUser) changeInLineKeyboardCategory();
-        else changeKeyboardListDishes();
+        else if (inDishesUser) changeKeyboardListDishes();
+        else editMessageOutputDishSelected();
     }
 
     private void changeInLineKeyboardCategory() {
@@ -146,8 +202,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void creatingMessageUserGreetingRegistration() {
-        sendMessage(Emoji.WELCOME.get());
-        sendMessage("Привет, " + update.getMessage().getChat().getFirstName() + ", давай знакомиться!");
+        sendMessageOnlyText(Emoji.WELCOME.get());
+        sendMessageOnlyText("Привет, " + update.getMessage().getChat().getFirstName() + ", давай знакомиться!");
         initializeKeyboardGetNumber();
     }
 
@@ -156,16 +212,18 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(replyKeyBoardGetNumber.keyboardGetNumber(sendMessage));
     }
 
-    private void sendMessage(String text) {
-        sendMessage.setText(text);
-        executeMessage(sendMessage);
+    private void sendMessageOnlyText(String text) {
+        SendMessage e = new SendMessage();
+        e.setText(text);
+        e.setChatId(sendMessage.getChatId());
+        executeMessage(e);
     }
 
     private void executeMessage(SendMessage message) {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            System.out.println("Ошибка "+ e.getMessage());
+            System.out.println("Ошибка " + e.getMessage());
         }
     }
 

@@ -16,6 +16,8 @@ public enum Emoji {
     ARROW_LEFT(":arrow_left:"),
     DISH(":fork_and_knife:"),
     WHITE_CHECK_MARK(":white_check_mark:"),
+    X(":x:"),
+    SMILE_BLUSH(":blush:"),
 
     WELCOME(":wave:"),
     CROSS(":x:"),

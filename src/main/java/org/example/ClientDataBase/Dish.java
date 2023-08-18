@@ -3,23 +3,41 @@ package org.example.ClientDataBase;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Dish extends DataBase {
-    public ArrayList<String> getDish(String categoryName) {
+    private final TreeMap<Integer, ArrayList<String>> mapDataDishes;
+
+    private ArrayList<String> correctDish;
+    public Dish(){
+        mapDataDishes = new TreeMap<>();
+    }
+
+    public void getAllDataAboutDishes(String categoryName) {
         try {
-            ArrayList<String> mapCategories = new ArrayList<>();
             Statement stmt = databaseConn.createStatement();
-            ResultSet dataAboutDish = stmt.executeQuery("select name, description, composition, photo, prise from " + categoryName);
-            dataAboutDish.next();
-            mapCategories.add(dataAboutDish.getString("name"));
-            mapCategories.add(dataAboutDish.getString("description"));
-            mapCategories.add(dataAboutDish.getString("composition"));
-            mapCategories.add(dataAboutDish.getString("photo"));
-            mapCategories.add(dataAboutDish.getString("prise"));
-            return mapCategories;
+            ResultSet dataAboutDish = stmt.executeQuery("select * from " + categoryName);
+            while (dataAboutDish.next())
+                mapDataDishes.put(Integer.parseInt(dataAboutDish.getString("id")), new ArrayList<>(Arrays.asList(
+                        dataAboutDish.getString("name"),
+                        dataAboutDish.getString("description"),
+                        dataAboutDish.getString("composition"),
+                        dataAboutDish.getString("photo"),
+                        dataAboutDish.getString("price"))));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+    public TreeMap<Integer, ArrayList<String>> getMapDataDishes(){
+        return mapDataDishes;
+    }
+
+    public void recordCorrectDish(int id) {
+        correctDish = new ArrayList<>(mapDataDishes.get(id));
+    }
+
+    public ArrayList<String> getCorrectDish() {
+        return correctDish;
+
     }
 }
