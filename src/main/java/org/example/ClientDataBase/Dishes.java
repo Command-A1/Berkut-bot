@@ -4,10 +4,12 @@ import java.sql.*;
 import java.util.*;
 
 public class Dishes extends DataBase implements ISortedMapBD {
+    private TreeMap<Integer, String> treeMap;
 
     public ArrayList<Map<Integer, String>> getAllCategoriesNameDishes(String categoryName) {
+
         try {
-            TreeMap<Integer, String> treeMap = new TreeMap<>();
+            treeMap = new TreeMap<>();
             Statement stmt = databaseConn.createStatement();
             ResultSet categories = stmt.executeQuery("select id, name from " + categoryName);
             while (categories.next())
@@ -16,5 +18,9 @@ public class Dishes extends DataBase implements ISortedMapBD {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public TreeMap<Integer, String> getTreeMap() {
+        return treeMap;
     }
 }

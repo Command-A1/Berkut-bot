@@ -6,10 +6,9 @@ import java.sql.*;
 
 public class UserNumber extends DataBase {
     public void sortNumber(Message message) {
-        String num = message.getContact().getPhoneNumber().substring(1);
         DataBase.driverConnections();
-        if (numberComparison(message.getContact().getPhoneNumber().substring(2), getAllNumbers()))
-            setNumber(message.getChatId().toString(), message.getContact().getFirstName(), num);
+        if (numberComparison(message.getContact().getPhoneNumber().substring(1), getAllNumbers()))
+            setNumber(message.getChatId().toString(), message.getContact().getFirstName(), message.getContact().getPhoneNumber().substring(1));
     }
     public void setNumber(String id, String userName, String number) {
         try {
@@ -20,10 +19,10 @@ public class UserNumber extends DataBase {
         }
     }
 
-    public boolean checkNumber(String clientNumber) {
-        final String numRegex = "^\\d{10}";
-        return clientNumber.matches(numRegex);
-    }
+//    public boolean checkNumber(String clientNumber) {
+//        final String numRegex = "^\\d{10}";
+//        return clientNumber.matches(numRegex);
+//    }
     public String getUserName(String userId) {
         try {
             Statement stmt = databaseConn.createStatement();

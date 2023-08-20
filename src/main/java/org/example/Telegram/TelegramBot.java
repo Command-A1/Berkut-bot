@@ -13,6 +13,7 @@ import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardGetNumber;
 import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardUserMenu;
 import org.example.Telegram.LibraryDB.ListNameDBTable;
 import org.example.Telegram.LibraryDB.OrderUser;
+import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,32 +22,29 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.Map;
+import java.util.*;
 
 public class TelegramBot extends TelegramLongPollingBot {
-    //private long chatId;
+
     private SendMessage sendMessage = new SendMessage();
     private InLineKeyboardButtonKitchenCategory categoryDishes;
     private Update update;
     private Dish dish = new Dish();
-    private Message message;
-    private OrderUser orderUser = new OrderUser(dish);
+
     private OrderDB orderDB = new OrderDB();
-    private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(orderUser);
+    private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(dish);
     private ReplyKeyBoardGetNumber replyKeyBoardGetNumber;
-    private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(orderUser, dish);
+    private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(dish);
 
     private ReplyKeyBoardUserMenu replyKeyBoardUserMenu = new ReplyKeyBoardUserMenu();
     private InLineKeyBoardListDishes replyKeyBoardListDishes;
     private UserNumber userNumber = new UserNumber();
     private UserId userId = new UserId();
-    private boolean inCategoryUser = true;
-    private boolean inDishesUser = false;
-    private boolean inDishUser = false;
-    private boolean confirmOrder = false;
-    private int numberTableUser;
-    private String nameCategoryTableDataBaseChoosingUser;
 
+    private HashMap<Long, ArrayList<Boolean>> localeUserInMenu = new HashMap<>();
+    private long chatId;
+
+    private HashMap<Long, Client> mapIdClient = new HashMap<>();
 
     public String getBotUsername() {
         return "@BerkutSamarabot";
@@ -60,29 +58,28 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         this.update = update;
         if (update.hasMessage()) {
-
-            message = update.getMessage();
-            sendMessage.setChatId(update.getMessage().getChatId());
-
-            if (confirmOrder&&message.hasText()) numberTableUser= Integer.parseInt(message.getText());
+            if (!mapIdClient.containsKey(update.getMessage().getChatId()))
+                mapIdClient.put(update.getMessage().getChatId(), new Client(update));
 
 
-            if (message.hasContact() && userNumber.checkNumber(message.getContact().getPhoneNumber().substring(1))) {
+            if (mapIdClient.get(chatId).getConfirmOrder()) sendOrderToBD();
+
+            if (update.getMessage().hasContact()) {
+                mapIdClient.get(update.getMessage().getChatId()).setContact(true);
                 recordUserIdAndUserNumber();
                 initializeKeyboardUserMenu();
             }
             if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
                 creatingMessageUserGreetingRegistration();
-            }
-            else if (message.hasText()) {
-                switch (message.getText()) {
+            } else if (update.getMessage().hasText()) {
+                switch (update.getMessage().getText()) {
                     case "/start":
-                        sendMessageOnlyText(Emoji.WELCOME.get());
-                        sendMessageOnlyText("Я вас помню, " + userNumber.getUserName(sendMessage.getChatId()) + " !");
+                        creatingMessageUserRemember();
                         initializeKeyboardUserMenu();
                         break;
                     case "Меню \uD83D\uDCCB":
                         initializeInLineKeyboardCategory();
+                        mapIdClient.get(update.getMessage().getChatId()).setInCategoryUser(true);
                         break;
                     case "Заказ \uD83D\uDCDD":
                         sendOrderToUser();
@@ -94,37 +91,37 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
         if (update.hasCallbackQuery()) {
+            chatId = update.getCallbackQuery().getMessage().getChatId();
             if (update.getCallbackQuery().getData().equals("след")) {
                 editMessage();
             } else if (update.getCallbackQuery().getData().equals("пред")) {
                 editMessage();
-            } else if (inCategoryUser) {
+            } else if (mapIdClient.get(chatId).getInCategoryUser()) {
                 chooseCategory();
                 outputMessageOnListDishes();
-                inCategoryUser = false;
-                inDishesUser = true;
-            } else if (inDishesUser) {
-                inDishesUser = false;
-                inDishUser = true;
+                mapIdClient.get(chatId).setInCategoryUser(false);
+                mapIdClient.get(chatId).setInDishesUser(true);
+            } else if (mapIdClient.get(chatId).getInDishesUser()) {
+                mapIdClient.get(chatId).setInDishesUser(false);
                 initializeOutputDishSelected();
-            } else if (inDishUser && update.getCallbackQuery().getData().equals("Вернуться в Список Блюд")) {
-                inDishesUser = true;
-                inDishUser = false;
+            } else if (update.getCallbackQuery().getData().equals("Вернуться в Список Блюд")) {
+                mapIdClient.get(chatId).resetValue();
+                mapIdClient.get(chatId).setInDishesUser(true);
                 outputMessageOnListDishes();
-            } else if (inDishUser && update.getCallbackQuery().getData().equals("Добавить в заказ")) {
+            } else if (update.getCallbackQuery().getData().equals("Добавить в заказ")) {
                 deleteMessage();
                 editMessageOutputDishSelected();
             } else if (update.getCallbackQuery().getData().equals("удалить")) {
                 deleteMessage();
                 editMessageOutputDishSelected();
-            }else if (update.getCallbackQuery().getData().equals("очистить")) {
-                orderUser.clearAllOrder();
+            } else if (update.getCallbackQuery().getData().equals("очистить")) {
+                mapIdClient.get(chatId).getOrderUser().clearAllOrder();
                 deleteMessage();
-                sendOrderToUser();
+                sendOrderToUserInLine();
             } else if (update.getCallbackQuery().getData().equals("оформить")) {
-                if (!orderUser.getMapOrderUser().isEmpty()) {
-                    confirmOrder = true;
-                    sendOrderToBD();
+                if (!mapIdClient.get(chatId).getOrderUser().getMapOrderUser().isEmpty()) {
+                    mapIdClient.get(chatId).setConfirmOrder(true);
+
                 } else sendMessageOnlyText("Ваш заказ - Пуст. Сначала заполните его! ");
             }
         }
@@ -133,31 +130,41 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void sendOrderToBD() {
-
+        mapIdClient.get(chatId).setConfirmOrder(false);
+        
     }
+//    private void recordMessageId(){
+//
+//    }
 
     private void sendOrderToUser() {
-        executeMessage(inLineKeyboardForOrder.createMessageOrderAll(sendMessage));
+        executeMessage(inLineKeyboardForOrder.createMessageOrderAll(mapIdClient.get(update.getMessage().getChatId())));
+    }
+
+    private void sendOrderToUserInLine() {
+        executeMessage(inLineKeyboardForOrder.createMessageOrderAll(mapIdClient.get(chatId)));
     }
 
     private void initializeOutputDishSelected() {
         deleteMessage();
-        inLineKeyboardSelectedDish.recordAllDataAboutDishes(nameCategoryTableDataBaseChoosingUser);
-        inLineKeyboardSelectedDish.setIdDish(Integer.parseInt(update.getCallbackQuery().getData()));
-        executeMessage(inLineKeyboardSelectedDish.dishFillData(sendMessage));
+        inLineKeyboardSelectedDish.recordAllDataAboutDishes(mapIdClient.get(chatId).getNameCategoryTableDataBaseChoosingUser());
+        inLineKeyboardSelectedDish.setIdDish(Integer.parseInt(update.getCallbackQuery().getData()), mapIdClient.get(chatId));
+        executeMessage(inLineKeyboardSelectedDish.dishFillData(mapIdClient.get(chatId)));
     }
 
     private void editMessageOutputDishSelected() {
-        inLineKeyboardSelectedDish.checkStep(update.getCallbackQuery().getData());
-        executeMessage(inLineKeyboardSelectedDish.dishFillData(sendMessage));
+        inLineKeyboardSelectedDish.checkStep(update.getCallbackQuery().getData(), mapIdClient.get(chatId));
+        executeMessage(inLineKeyboardSelectedDish.dishFillData(mapIdClient.get(chatId)));
     }
 
-    private void chooseCategory() {
+    private boolean chooseCategory() {
         for (Map.Entry entry : ListNameDBTable.getListNameDBTable().entrySet()) {
             if (entry.getKey().equals(Integer.parseInt(update.getCallbackQuery().getData()))) {
-                nameCategoryTableDataBaseChoosingUser = (String) entry.getValue();
+                mapIdClient.get(chatId).setNameCategoryTableDataBaseChoosingUser((String) entry.getValue());
+                return true;
             }
         }
+        return false;
     }
 
     private void outputMessageOnListDishes() {
@@ -166,56 +173,65 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void initializeKeyboardListDishes() {
-        replyKeyBoardListDishes = new InLineKeyBoardListDishes(nameCategoryTableDataBaseChoosingUser);
-        sendMessage.setText("Выберите блюдо " + Emoji.DISH.get());
-        executeMessage(replyKeyBoardListDishes.listCategory(sendMessage, " "));
+        replyKeyBoardListDishes = new InLineKeyBoardListDishes(mapIdClient.get(chatId).getNameCategoryTableDataBaseChoosingUser());
+        mapIdClient.get(chatId).setTextInSendMessage("Выберите блюдо " + Emoji.DISH.get());
+        executeMessage(replyKeyBoardListDishes.listCategory(mapIdClient.get(chatId), " "));
     }
 
     private void changeKeyboardListDishes() {
-        executeMessage(replyKeyBoardListDishes.listCategory(sendMessage, update.getCallbackQuery().getData()));
+        executeMessage(replyKeyBoardListDishes.listCategory(mapIdClient.get(chatId), update.getCallbackQuery().getData()));
     }
 
     private void editMessage() {
         deleteMessage();
-        if (inCategoryUser) changeInLineKeyboardCategory();
-        else if (inDishesUser) changeKeyboardListDishes();
-        else editMessageOutputDishSelected();
+        if (mapIdClient.get(chatId).getInCategoryUser())
+            changeInLineKeyboardCategory();
+        else if (mapIdClient.get(chatId).getInDishesUser())
+            changeKeyboardListDishes();
+        else
+            editMessageOutputDishSelected();
     }
 
     private void changeInLineKeyboardCategory() {
-        executeMessage(categoryDishes.listCategory(sendMessage, update.getCallbackQuery().getData()));
+        executeMessage(categoryDishes.listCategory(mapIdClient.get(chatId), update.getCallbackQuery().getData()));
     }
 
     private void initializeKeyboardUserMenu() {
-        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(sendMessage));
+        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(mapIdClient.get(update.getMessage().getChatId())));
     }
 
     private void initializeInLineKeyboardCategory() {
+        mapIdClient.get(update.getMessage().getChatId()).resetValue();
         categoryDishes = new InLineKeyboardButtonKitchenCategory();
-        inCategoryUser = true;
-        sendMessage.setText("Выберите категорию" + Emoji.MENU.get());
-        executeMessage(categoryDishes.listCategory(sendMessage, " "));
+        mapIdClient.get(update.getMessage().getChatId()).setTextInSendMessage("Выберите категорию" + Emoji.MENU.get());
+        executeMessage(categoryDishes.listCategory(mapIdClient.get(update.getMessage().getChatId()), " "));
     }
 
     private void recordUserIdAndUserNumber() {
-        userNumber.sortNumber(message);
+        userNumber.sortNumber(update.getMessage());
     }
 
     private void creatingMessageUserGreetingRegistration() {
         sendMessageOnlyText(Emoji.WELCOME.get());
-        sendMessageOnlyText("Привет, " + update.getMessage().getChat().getFirstName() + ", давай знакомиться!");
+        sendMessageOnlyText("Привет, " + mapIdClient.get(update.getMessage().getChatId()).getFirstName() + ", давай знакомиться!");
         initializeKeyboardGetNumber();
+    }
+
+    private void creatingMessageUserRemember() {
+        sendMessageOnlyText(Emoji.WELCOME.get());
+        sendMessageOnlyText("Я вас помню, " + userNumber.getUserName(String.valueOf(update.getMessage().getChatId())) + " !");
+
     }
 
     private void initializeKeyboardGetNumber() {
         replyKeyBoardGetNumber = new ReplyKeyBoardGetNumber();
-        executeMessage(replyKeyBoardGetNumber.keyboardGetNumber(sendMessage));
+        executeMessage(replyKeyBoardGetNumber.keyboardGetNumber(mapIdClient.get(update.getMessage().getChatId())));
     }
 
     private void sendMessageOnlyText(String text) {
         SendMessage e = new SendMessage();
         e.setText(text);
-        e.setChatId(sendMessage.getChatId());
+        e.setChatId(mapIdClient.get(update.getMessage().getChatId()).getSendMessage().getChatId());
         executeMessage(e);
     }
 
@@ -229,7 +245,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void deleteMessage() {
         DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setChatId(sendMessage.getChatId());
+        deleteMessage.setChatId(chatId);
         deleteMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         try {
             execute(deleteMessage);

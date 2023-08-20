@@ -1,6 +1,7 @@
 package org.example.Telegram.KeyBoard.InLine;
 
 import org.example.Telegram.LibraryDB.OrderUser;
+import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -10,11 +11,10 @@ import java.util.*;
 
 public abstract class InLineKeyboardButton {
     protected ArrayList<Map<Integer, String>> hashMapArrayList;
-    protected int id = 0;
     protected InlineKeyboardMarkup markupInLine;
     protected List<List<InlineKeyboardButton>> rowsInLine;
     protected List<InlineKeyboardButton> rowInLine;
-    protected OrderUser orderUser;
+
 
     public void initializationInlineKeyboard() {
         markupInLine = new InlineKeyboardMarkup();
@@ -22,13 +22,13 @@ public abstract class InLineKeyboardButton {
         rowInLine = new ArrayList<>();
     }
 
-    public SendMessage listCategory(SendMessage message, String step) {
+    public SendMessage listCategory(Client client, String step) {
 
         initializationInlineKeyboard();
 
-        checkStep(step);
+        checkStep(step,client);
 
-        for (Map.Entry<Integer, String> entry : hashMapArrayList.get(id).entrySet()) {
+        for (Map.Entry<Integer, String> entry : hashMapArrayList.get(client.getWhereToWalk()).entrySet()) {
             rowInLine.add(new InlineKeyboardButton());
             rowInLine.get(0).setText(entry.getValue());
             rowInLine.get(0).setCallbackData(entry.getKey().toString());
@@ -37,30 +37,34 @@ public abstract class InLineKeyboardButton {
             rowInLine = new ArrayList<>();
         }
 
-        addHelpButton();
+        addHelpButton(client);
         markupInLine.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markupInLine);
-        return message;
+        client.setReplyMarkupSendMessage(markupInLine);
+        return client.getSendMessage();
     }
 
 
-    public void checkStep(String step) {
+    public void checkStep(String step,Client client) {
         switch (step) {
             case "след":
-                id++;
+                client.setWhereToWalk(1);
                 break;
             case "пред":
-                id--;
+                client.setWhereToWalk(-1);
                 break;
             case "Добавить в заказ":
-                orderUser.addCountDishInOrderUser(id);
+                client.getOrderUser().addCountDishInOrderUser(client.getWhereToWalk());
                 break;
             case "удалить":
-                orderUser.removeCountDishInOrderUser(id);
+                client.getOrderUser().removeCountDishInOrderUser(client.getWhereToWalk());
                 break;
         }
     }
-
+    public void addButtonStepPrevious(int number) {
+        rowInLine.add(new InlineKeyboardButton());
+        rowInLine.get(number).setText(Emoji.ARROW_LEFT.get());
+        rowInLine.get(number).setCallbackData("пред");
+    }
     public void addButtonReturnToMenu(int number) {
         rowInLine.add(new InlineKeyboardButton());
         rowInLine.get(number).setText(Emoji.MENU.get());
@@ -74,19 +78,13 @@ public abstract class InLineKeyboardButton {
 
     }
 
-    public void addButtonAddToOrder(int number) {
+    public void addButtonAddToOrder(int number,Client client) {
 
         rowInLine.add(new InlineKeyboardButton());
-        if (orderUser.getMapOrderUser().containsKey(id) && !orderUser.getMapOrderUser().get(id).equals(0))
-            rowInLine.get(number).setText(Emoji.WHITE_CHECK_MARK.get() + " — " + orderUser.getMapOrderUser().get(id));
+        if (client.getOrderUser().getMapOrderUser().containsKey(client.getWhereToWalk()) && !client.getOrderUser().getMapOrderUser().get(client.getWhereToWalk()).equals(0))
+            rowInLine.get(number).setText(Emoji.WHITE_CHECK_MARK.get() + " — " + client.getOrderUser().getMapOrderUser().get(client.getWhereToWalk()));
         else rowInLine.get(number).setText(Emoji.WHITE_CHECK_MARK.get());
         rowInLine.get(number).setCallbackData("Добавить в заказ");
-    }
-
-    public void addButtonStepPrevious(int number) {
-        rowInLine.add(new InlineKeyboardButton());
-        rowInLine.get(number).setText(Emoji.ARROW_LEFT.get());
-        rowInLine.get(number).setCallbackData("пред");
     }
 
     public void addButtonStepNext(int number) {
@@ -96,12 +94,12 @@ public abstract class InLineKeyboardButton {
     }
 
 
-    public void addHelpButton() {
-        if (id != 0 && id != hashMapArrayList.size() - 1) {
+    public void addHelpButton(Client client) {
+        if (client.getWhereToWalk() != 0 && client.getWhereToWalk() != hashMapArrayList.size() - 1) {
             addButtonStepPrevious(0);
             addButtonStepNext(1);
             rowsInLine.add(rowInLine);
-        } else if (id == 0) {
+        } else if (client.getWhereToWalk() == 0) {
             addButtonStepNext(0);
             rowsInLine.add(rowInLine);
         } else {

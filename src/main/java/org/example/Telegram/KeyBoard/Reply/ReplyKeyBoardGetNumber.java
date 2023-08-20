@@ -1,5 +1,6 @@
 package org.example.Telegram.KeyBoard.Reply;
 
+import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -9,29 +10,20 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplyKeyBoardGetNumber {
-    private ReplyKeyboardMarkup keyboardMarkup;
-    private List<KeyboardRow> keyboardRowsVertical;
+public class ReplyKeyBoardGetNumber extends ReplyKeyBoardButton {
 
-
-    private KeyboardRow rowHorizontal;
-
-    public SendMessage keyboardGetNumber(SendMessage message) {
-        keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardRowsVertical = new ArrayList<>();
-
-        rowHorizontal = new KeyboardRow();
-        KeyboardButton e = new KeyboardButton("Отправьте номер" + Emoji.TELEPHONE.get());
+    public SendMessage keyboardGetNumber(Client client) {
+        initializeObjectInlineKeyboard();
+        client.setTextInSendMessage("Отправь свой номер");
+        KeyboardButton e = new KeyboardButton("Отправить номер" + Emoji.TELEPHONE.get());
         e.setRequestContact(true);
         rowHorizontal.add(e);
 
         keyboardRowsVertical.add(rowHorizontal);
 
         keyboardMarkup.setKeyboard(keyboardRowsVertical);
-        message.setReplyMarkup(keyboardMarkup);
-        message.setText("Отправь мне свой номер телефона");
+        client.setReplyMarkupSendMessage(keyboardMarkup);
 
-        return message;
+        return client.getSendMessage();
     }
 }

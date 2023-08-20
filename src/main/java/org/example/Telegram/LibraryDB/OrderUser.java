@@ -1,25 +1,16 @@
 package org.example.Telegram.LibraryDB;
 
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import org.example.ClientDataBase.Dish;
 import org.example.Telegram.Models.Emoji;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class OrderUser {
     private HashMap<Integer, Integer> mapOrderUser;
-    private Dish dish;
 
-    public OrderUser(Dish dish) {
+    public OrderUser() {
         mapOrderUser = new HashMap<>();
-        this.dish = dish;
-    }
-
-    public void setMapOrderUser(HashMap<Integer, Integer> mapOrderUser) {
-        this.mapOrderUser = mapOrderUser;
     }
 
     public void addCountDishInOrderUser(int idDish) {
@@ -30,8 +21,12 @@ public class OrderUser {
     }
 
     public void removeCountDishInOrderUser(int idDish) {
-        if (!mapOrderUser.isEmpty() && mapOrderUser.containsKey(idDish) && !mapOrderUser.get(idDish).equals(0))
+        if (!mapOrderUser.isEmpty() && mapOrderUser.containsKey(idDish) && !mapOrderUser.get(idDish).equals(0)) {
             this.mapOrderUser.put(idDish, mapOrderUser.get(idDish) - 1);
+            if (mapOrderUser.get(idDish).equals(0)) {
+                mapOrderUser.remove(idDish);
+            }
+        }
     }
 
     public HashMap<Integer, Integer> getMapOrderUser() {
@@ -42,12 +37,16 @@ public class OrderUser {
         mapOrderUser.clear();
     }
 
-    public String setTextOrderAll() {
+    public boolean checkOnEmptyMapOrderUser() {
+        return mapOrderUser.isEmpty();
+    }
+
+    public String getTextOrderAll(Dish dish) {
         String text = "Ваш заказ: \n\n";
         if (mapOrderUser.isEmpty()) text += "Здесь пока перекати поле. Но мы ждем твой заказ" + Emoji.SMILE_BLUSH.get();
         else {
             for (Map.Entry entry : mapOrderUser.entrySet()) {
-                text += dish.getMapDataDishes().get(entry.getKey()).get(0) + " — " + entry.getValue()+ " шт"+ "\n\n";
+                    text += dish.getMapDataDishes().get(entry.getKey()).get(0) + " — " + entry.getValue() + " шт" + "\n\n";
             }
         }
         return text;

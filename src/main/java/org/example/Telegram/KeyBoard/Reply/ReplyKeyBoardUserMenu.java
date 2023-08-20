@@ -1,5 +1,6 @@
 package org.example.Telegram.KeyBoard.Reply;
 
+import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -9,29 +10,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplyKeyBoardUserMenu {
-    private ReplyKeyboardMarkup keyboardMarkup;
-    private List<KeyboardRow> keyboardRowsVertical;
-    private KeyboardButton button;
+public class ReplyKeyBoardUserMenu extends ReplyKeyBoardButton{
 
-    private KeyboardRow rowHorizontal;
-
-    public SendMessage keyboardUserMenu(SendMessage message) {
-        keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardRowsVertical = new ArrayList<>();
-        message.setText("Приступим к заказу!");
-        rowHorizontal = new KeyboardRow();
-        button = new KeyboardButton("Меню " + Emoji.MENU.get());
-        rowHorizontal.add(button);
-        button = new KeyboardButton("Заказ " + Emoji.ORDER_LIST.get());
-        rowHorizontal.add(button);
+    public SendMessage keyboardUserMenu(Client client) {
+        initializeObjectInlineKeyboard();
+        client.setTextInSendMessage("Приступим к заказу!");
+        rowHorizontal.add(new KeyboardButton("Меню " + Emoji.MENU.get()));
+        rowHorizontal.add(new KeyboardButton("Заказ " + Emoji.ORDER_LIST.get()));
 
         keyboardRowsVertical.add(rowHorizontal);
 
         keyboardMarkup.setKeyboard(keyboardRowsVertical);
-        message.setReplyMarkup(keyboardMarkup);
+        client.setReplyMarkupSendMessage(keyboardMarkup);
 
-        return message;
+        return client.getSendMessage();
     }
 }
