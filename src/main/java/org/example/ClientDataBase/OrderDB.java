@@ -1,15 +1,15 @@
 package org.example.ClientDataBase;
 
-import java.sql.*;
-import java.util.ArrayList;
+
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
 
 public class OrderDB extends DataBase {
-    public void createOrderInDB(ArrayList<String> infoAboutOrder) {
+    public void createOrderInDB(String userid, String table, String dishesId, Date timeCreateMessage) {
         try {
             Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into order values (userid, table, dishesid, time) ('" + infoAboutOrder.get(0) + "'," +
-                    "'" + infoAboutOrder.get(1) + "'," +
-                    "'" + infoAboutOrder.get(2) + "','"+ infoAboutOrder.get(3) +"')");
+            stmt.executeUpdate("insert into orderclients  (idclient, tableclient, disheid, dateconfirmorder) values('" + userid + "','" + table + "','"  + dishesId + "','"+ timeCreateMessage. +"')");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

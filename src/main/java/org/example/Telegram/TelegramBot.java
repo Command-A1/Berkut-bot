@@ -22,6 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.sql.Date;
 import java.util.*;
 
 public class TelegramBot extends TelegramLongPollingBot {
@@ -31,7 +32,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private Update update;
     private Dish dish = new Dish();
 
-    private OrderDB orderDB = new OrderDB();
+    private final OrderDB orderDB = new OrderDB();
     private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(dish);
     private ReplyKeyBoardGetNumber replyKeyBoardGetNumber;
     private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(dish);
@@ -62,31 +63,35 @@ public class TelegramBot extends TelegramLongPollingBot {
                 mapIdClient.put(update.getMessage().getChatId(), new Client(update));
 
 
-            if (mapIdClient.get(chatId).getConfirmOrder()) sendOrderToBD();
+            if (checkNumberTable()) {
+                sendOrderToBD();
 
-            if (update.getMessage().hasContact()) {
-                mapIdClient.get(update.getMessage().getChatId()).setContact(true);
-                recordUserIdAndUserNumber();
-                initializeKeyboardUserMenu();
             }
-            if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
-                creatingMessageUserGreetingRegistration();
-            } else if (update.getMessage().hasText()) {
-                switch (update.getMessage().getText()) {
-                    case "/start":
-                        creatingMessageUserRemember();
-                        initializeKeyboardUserMenu();
-                        break;
-                    case "Меню \uD83D\uDCCB":
-                        initializeInLineKeyboardCategory();
-                        mapIdClient.get(update.getMessage().getChatId()).setInCategoryUser(true);
-                        break;
-                    case "Заказ \uD83D\uDCDD":
-                        sendOrderToUser();
-                        break;
-                    default:
-                        sendMessageOnlyText("Не понимаю о чем ВЫ. Воспользуйтесь кнопочками");
-                        break;
+            else {
+                if (update.getMessage().hasContact()) {
+                    mapIdClient.get(update.getMessage().getChatId()).setContact(true);
+                    recordUserIdAndUserNumber();
+                    initializeKeyboardUserMenu();
+                }
+                if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
+                    creatingMessageUserGreetingRegistration();
+                } else if (update.getMessage().hasText()) {
+                    switch (update.getMessage().getText()) {
+                        case "/start":
+                            creatingMessageUserRemember();
+                            initializeKeyboardUserMenu();
+                            break;
+                        case "Меню \uD83D\uDCCB":
+                            initializeInLineKeyboardCategory();
+                            mapIdClient.get(update.getMessage().getChatId()).setInCategoryUser(true);
+                            break;
+                        case "Заказ \uD83D\uDCDD":
+                            sendOrderToUser();
+                            break;
+                        default:
+                            sendMessageOnlyText("Не понимаю о чем ВЫ. Воспользуйтесь кнопочками", false);
+                            break;
+                    }
                 }
             }
         }
@@ -115,33 +120,58 @@ public class TelegramBot extends TelegramLongPollingBot {
                 deleteMessage();
                 editMessageOutputDishSelected();
             } else if (update.getCallbackQuery().getData().equals("очистить")) {
-                mapIdClient.get(chatId).getOrderUser().clearAllOrder();
-                deleteMessage();
+
                 sendOrderToUserInLine();
             } else if (update.getCallbackQuery().getData().equals("оформить")) {
                 if (!mapIdClient.get(chatId).getOrderUser().getMapOrderUser().isEmpty()) {
-                    mapIdClient.get(chatId).setConfirmOrder(true);
-
-                } else sendMessageOnlyText("Ваш заказ - Пуст. Сначала заполните его! ");
+                    createRequestNumberTable();
+                } else sendMessageOnlyText("Ваш заказ - Пуст. Сначала заполните его! ", true);
             }
         }
 
 
     }
 
-    private void sendOrderToBD() {
-        mapIdClient.get(chatId).setConfirmOrder(false);
-        
+    public boolean checkNumberTable() {
+        return isNumeric(update.getMessage().getText()) && mapIdClient.get(update.getMessage().getChatId()).getConfirmOrder();
     }
-//    private void recordMessageId(){
-//
-//    }
+
+    private static boolean isNumeric(String s) throws NumberFormatException {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void sendOrderToBD() {
+        mapIdClient.get(update.getMessage().getChatId()).setConfirmOrder(false);
+        List<String> list = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : mapIdClient.get(update.getMessage().getChatId()).getOrderUser().getMapOrderUser().entrySet()) {
+            for (int i = 0; i < entry.getValue(); i++)
+                list.add(entry.getKey().toString());
+        }
+        orderDB.createOrderInDB(
+                update.getMessage().getChatId().toString(),
+                update.getMessage().getText(),
+                String.join(",", list),
+                new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000));
+    }
+
+    public void createRequestNumberTable() {
+        mapIdClient.get(chatId).setConfirmOrder(true);
+        deleteMessage();
+        sendMessageOnlyText("Введите ваш номер столика указанный на столе", true);
+    }
 
     private void sendOrderToUser() {
         executeMessage(inLineKeyboardForOrder.createMessageOrderAll(mapIdClient.get(update.getMessage().getChatId())));
     }
 
     private void sendOrderToUserInLine() {
+        deleteMessage();
+        mapIdClient.get(chatId).getOrderUser().clearAllOrder();
         executeMessage(inLineKeyboardForOrder.createMessageOrderAll(mapIdClient.get(chatId)));
     }
 
@@ -212,14 +242,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void creatingMessageUserGreetingRegistration() {
-        sendMessageOnlyText(Emoji.WELCOME.get());
-        sendMessageOnlyText("Привет, " + mapIdClient.get(update.getMessage().getChatId()).getFirstName() + ", давай знакомиться!");
+        sendMessageOnlyText(Emoji.WELCOME.get(), false);
+        sendMessageOnlyText("Привет, " + mapIdClient.get(update.getMessage().getChatId()).getFirstName() + ", давай знакомиться!", false);
         initializeKeyboardGetNumber();
     }
 
     private void creatingMessageUserRemember() {
-        sendMessageOnlyText(Emoji.WELCOME.get());
-        sendMessageOnlyText("Я вас помню, " + userNumber.getUserName(String.valueOf(update.getMessage().getChatId())) + " !");
+        sendMessageOnlyText(Emoji.WELCOME.get(), false);
+        sendMessageOnlyText("Я вас помню, " + userNumber.getUserName(String.valueOf(update.getMessage().getChatId())) + " !", false);
 
     }
 
@@ -228,10 +258,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(replyKeyBoardGetNumber.keyboardGetNumber(mapIdClient.get(update.getMessage().getChatId())));
     }
 
-    private void sendMessageOnlyText(String text) {
+    private void sendMessageOnlyText(String text, boolean chatIdOrNot) {
         SendMessage e = new SendMessage();
         e.setText(text);
-        e.setChatId(mapIdClient.get(update.getMessage().getChatId()).getSendMessage().getChatId());
+        e.setChatId(mapIdClient.get(chatIdOrNot ? chatId : update.getMessage().getChatId()).getSendMessage().getChatId());
         executeMessage(e);
     }
 
