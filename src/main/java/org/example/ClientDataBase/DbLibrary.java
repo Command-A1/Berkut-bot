@@ -3,40 +3,61 @@ package org.example.ClientDataBase;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class DbLibrary extends DataBase{
+public class DbLibrary extends DataBase implements ISortedMapBD{
 
-    static public ArrayList<String> allNameCategories;
-    static public ArrayList<ArrayList<String>> allDishesName;
-
-    public void setAllNameCategories(ArrayList<String> allNameCategories) {
+    static public ArrayList<Map<Integer, String>> allCategoriesName;
+    static public TreeMap<Integer, Map<Integer, String>> allDishesName;
+    static public TreeMap<Integer, ArrayList<String>> mapDataDishes;
+    //Map<Integer, String>
+    public void getAllCategoriesNameDishes(String categoryName) {
         try {
-            ArrayList<String> allCategories = new ArrayList<>();
+            TreeMap<Integer, String> treeMap = new TreeMap<>();
             Statement stmt = databaseConn.createStatement();
-            ResultSet categories = stmt.executeQuery("select name from categories");
+            ResultSet categories = stmt.executeQuery("select * from categories");
+
             while (categories.next())
-                allCategories.add(categories.getString("name"));
-            DbLibrary.allNameCategories = allNameCategories;
+                treeMap.put(Integer.parseInt(categories.getString("id")), categories.getString("name"));
+            DbLibrary.allCategoriesName = sortedCategoriesTreeMap(treeMap);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void getAllNameDishes(HashMap<Integer,String> categoryName) {
+        try {
+            int counter = 0;
+            for (Map.Entry entry: categoryName.entrySet()) {
+
+                TreeMap<Integer, String> allCategories = new TreeMap<>();
+                Statement stmt = databaseConn.createStatement();
+                ResultSet categories = stmt.executeQuery("select id, name from " + entry.getValue());
+                while(categories.next())
+                    allCategories.put(Integer.parseInt(categories.getString("id")), categories.getString("name"));
+                DbLibrary.allDishesName.put(counter,allCategories);
+                counter++;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void setAllDishesName(HashMap<Integer,String> tablesName){
-        for (Map.Entry entry: tablesName.entrySet()) {
-            try {
-                ArrayList<String> allNamesDishesFroTable = new ArrayList<>();
+    public void setAllDishes(HashMap<Integer,String> categoryName){
+        try {
+            for (Map.Entry entry: categoryName.entrySet()) {
+
                 Statement stmt = databaseConn.createStatement();
-                ResultSet categories = stmt.executeQuery("select name from " + entry.getValue());
-                while (categories.next())
-                    allNamesDishesFroTable.add(categories.getString("name"));
-                DbLibrary.allDishesName.add(allNamesDishesFroTable);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+                ResultSet dataAboutDish = stmt.executeQuery("select * from " + entry.getValue());
+                while (dataAboutDish.next())
+                    DbLibrary.mapDataDishes.put(Integer.parseInt(dataAboutDish.getString("id")), new ArrayList<>(Arrays.asList(
+                            dataAboutDish.getString("name"),
+                            dataAboutDish.getString("description"),
+                            dataAboutDish.getString("composition"),
+                            dataAboutDish.getString("photo"),
+                            dataAboutDish.getString("price"))));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
