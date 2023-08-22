@@ -23,6 +23,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TelegramBot extends TelegramLongPollingBot {
@@ -66,8 +67,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (checkNumberTable()) {
                 sendOrderToBD();
 
-            }
-            else {
+            } else {
                 if (update.getMessage().hasContact()) {
                     mapIdClient.get(update.getMessage().getChatId()).setContact(true);
                     recordUserIdAndUserNumber();
@@ -152,17 +152,24 @@ public class TelegramBot extends TelegramLongPollingBot {
             for (int i = 0; i < entry.getValue(); i++)
                 list.add(entry.getKey().toString());
         }
-        orderDB.createOrderInDB(
-                update.getMessage().getChatId().toString(),
-                update.getMessage().getText(),
-                String.join(",", list),
-                new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000));
+        if (
+                orderDB.createOrderInDB(
+                        update.getMessage().getChatId().toString(),
+                        update.getMessage().getText(),
+                        String.join(",", list),
+                        new SimpleDateFormat("HH:mm").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000))))
+            jumpToMenu();
     }
 
     public void createRequestNumberTable() {
         mapIdClient.get(chatId).setConfirmOrder(true);
         deleteMessage();
         sendMessageOnlyText("Введите ваш номер столика указанный на столе", true);
+    }
+
+    public void jumpToMenu() {
+        sendMessageOnlyText("Ваш заказ отправлен ожидайте", true);
+        initializeKeyboardUserMenu();
     }
 
     private void sendOrderToUser() {

@@ -2,16 +2,15 @@ package org.example.ClientDataBase;
 
 
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Date;
+
 
 public class OrderDB extends DataBase {
-    public void createOrderInDB(String userid, String table, String dishesId, Date timeCreateMessage) {
+    public boolean createOrderInDB(String userid, String table, String dishesId, String timeCreateMessage) {
         try {
-            Statement stmt = databaseConn.createStatement();
-            stmt.executeUpdate("insert into orderclients  (idclient, tableclient, disheid, dateconfirmorder) values('" + userid + "','" + table + "','"  + dishesId + "','"+ timeCreateMessage. +"')");
+            databaseConn.createStatement().executeUpdate("insert into orderclients  (idclient, tableclient, disheid, dateconfirmorder) values('" + userid + "','" + table + "','"  + dishesId + "','"+ timeCreateMessage +"')");
+            return true;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 }
