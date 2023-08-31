@@ -1,7 +1,7 @@
 package org.example.Telegram;
 
 
-import org.example.ClientDataBase.Dish;
+import org.example.ClientDataBase.DishDB;
 import org.example.ClientDataBase.OrderDB;
 import org.example.ClientDataBase.UserId;
 import org.example.ClientDataBase.UserNumber;
@@ -12,13 +12,11 @@ import org.example.Telegram.KeyBoard.InLine.InLineKeyboardSelectedDish;
 import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardGetNumber;
 import org.example.Telegram.KeyBoard.Reply.ReplyKeyBoardUserMenu;
 import org.example.Telegram.LibraryDB.ListNameDBTable;
-import org.example.Telegram.LibraryDB.OrderUser;
 import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -31,12 +29,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     private SendMessage sendMessage = new SendMessage();
     private InLineKeyboardButtonKitchenCategory categoryDishes;
     private Update update;
-    private Dish dish = new Dish();
+    private DishDB dishDB = new DishDB();
 
     private final OrderDB orderDB = new OrderDB();
-    private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(dish);
+    private InLineKeyboardForOrder inLineKeyboardForOrder = new InLineKeyboardForOrder(dishDB);
     private ReplyKeyBoardGetNumber replyKeyBoardGetNumber;
-    private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(dish);
+    private InLineKeyboardSelectedDish inLineKeyboardSelectedDish = new InLineKeyboardSelectedDish(dishDB);
 
     private ReplyKeyBoardUserMenu replyKeyBoardUserMenu = new ReplyKeyBoardUserMenu();
     private InLineKeyBoardListDishes replyKeyBoardListDishes;
@@ -71,7 +69,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (update.getMessage().hasContact()) {
                     mapIdClient.get(update.getMessage().getChatId()).setContact(true);
                     recordUserIdAndUserNumber();
-                    initializeKeyboardUserMenu();
+                    initializeKeyboardUserMenu("Посмотрим что у нас есть");
                 }
                 if (!userId.userIdComparison(update.getMessage().getChatId(), userId.getAllId())) {
                     creatingMessageUserGreetingRegistration();
@@ -79,7 +77,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     switch (update.getMessage().getText()) {
                         case "/start":
                             creatingMessageUserRemember();
-                            initializeKeyboardUserMenu();
+                            initializeKeyboardUserMenu("Приступим к заказу!");
                             break;
                         case "Меню \uD83D\uDCCB":
                             initializeInLineKeyboardCategory();
@@ -120,7 +118,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 deleteMessage();
                 editMessageOutputDishSelected();
             } else if (update.getCallbackQuery().getData().equals("очистить")) {
-
                 sendOrderToUserInLine();
             } else if (update.getCallbackQuery().getData().equals("оформить")) {
                 if (!mapIdClient.get(chatId).getOrderUser().getMapOrderUser().isEmpty()) {
@@ -157,7 +154,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                         update.getMessage().getChatId().toString(),
                         update.getMessage().getText(),
                         String.join(",", list),
-                        new SimpleDateFormat("HH:mm").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000))))
+                        new SimpleDateFormat("HH:mm").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000)),
+                        new SimpleDateFormat("yyMMddHHmmss").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000))))
             jumpToMenu();
     }
 
@@ -168,8 +166,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public void jumpToMenu() {
-        sendMessageOnlyText("Ваш заказ отправлен ожидайте", true);
-        initializeKeyboardUserMenu();
+        mapIdClient.get(chatId).getOrderUser().clearAllOrder();
+        initializeKeyboardUserMenu("Ваш заказ отправлен ожидайте");
     }
 
     private void sendOrderToUser() {
@@ -233,8 +231,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(categoryDishes.listCategory(mapIdClient.get(chatId), update.getCallbackQuery().getData()));
     }
 
-    private void initializeKeyboardUserMenu() {
-        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(mapIdClient.get(update.getMessage().getChatId())));
+    private void initializeKeyboardUserMenu(String text) {
+        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(mapIdClient.get(update.getMessage().getChatId()),text));
     }
 
     private void initializeInLineKeyboardCategory() {

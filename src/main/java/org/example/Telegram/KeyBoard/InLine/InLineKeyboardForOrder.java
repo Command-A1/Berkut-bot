@@ -1,21 +1,21 @@
 package org.example.Telegram.KeyBoard.InLine;
 
-import org.example.ClientDataBase.Dish;
+import org.example.ClientDataBase.DishDB;
 import org.example.Telegram.Models.Client;
 import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 public class InLineKeyboardForOrder extends InLineKeyboardButton {
-    private Dish dish;
+    private DishDB dishDB;
 
-    public InLineKeyboardForOrder(Dish dish) {
-        this.dish = dish;
+    public InLineKeyboardForOrder(DishDB dishDB) {
+        this.dishDB = dishDB;
     }
 
     public SendMessage createMessageOrderAll(Client client) {
         initializationInlineKeyboard();
-        client.getSendMessage().setText(client.getOrderUser().getTextOrderAll(dish));
+        client.getSendMessage().setText(client.getOrderUser().getTextOrderAll(dishDB));
         if (!client.getOrderUser().checkOnEmptyMapOrderUser()) {
             setButtonClearAllOrder();
             setButtonConfirm();

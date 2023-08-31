@@ -95,16 +95,18 @@ public abstract class InLineKeyboardButton {
 
 
     public void addHelpButton(Client client) {
-        if (client.getWhereToWalk() != 0 && client.getWhereToWalk() != hashMapArrayList.size() - 1) {
-            addButtonStepPrevious(0);
-            addButtonStepNext(1);
-            rowsInLine.add(rowInLine);
-        } else if (client.getWhereToWalk() == 0) {
-            addButtonStepNext(0);
-            rowsInLine.add(rowInLine);
-        } else {
-            addButtonStepPrevious(0);
-            rowsInLine.add(rowInLine);
+        if (hashMapArrayList.size()!=1) {
+            if (client.getWhereToWalk() != 0 && client.getWhereToWalk() != hashMapArrayList.size() - 1) {
+                addButtonStepPrevious(0);
+                addButtonStepNext(1);
+                rowsInLine.add(rowInLine);
+            } else if (client.getWhereToWalk() == 0) {
+                addButtonStepNext(0);
+                rowsInLine.add(rowInLine);
+            } else {
+                addButtonStepPrevious(0);
+                rowsInLine.add(rowInLine);
+            }
         }
     }
 

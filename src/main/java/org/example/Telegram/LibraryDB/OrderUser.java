@@ -1,6 +1,6 @@
 package org.example.Telegram.LibraryDB;
 
-import org.example.ClientDataBase.Dish;
+import org.example.ClientDataBase.DishDB;
 import org.example.Telegram.Models.Emoji;
 
 import java.util.HashMap;
@@ -41,12 +41,12 @@ public class OrderUser {
         return mapOrderUser.isEmpty();
     }
 
-    public String getTextOrderAll(Dish dish) {
+    public String getTextOrderAll(DishDB dishDB) {
         String text = "Ваш заказ: \n\n";
         if (mapOrderUser.isEmpty()) text += "Здесь пока перекати поле. Но мы ждем твой заказ" + Emoji.SMILE_BLUSH.get();
         else {
             for (Map.Entry entry : mapOrderUser.entrySet()) {
-                    text += dish.getMapDataDishes().get(entry.getKey()).get(0) + " — " + entry.getValue() + " шт" + "\n\n";
+                    text += dishDB.getMapDataDishes().get(entry.getKey()).getName() + " — " + entry.getValue() + " шт" + "\n\n";
             }
         }
         return text;

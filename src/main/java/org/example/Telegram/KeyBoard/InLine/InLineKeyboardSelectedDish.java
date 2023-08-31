@@ -1,21 +1,18 @@
 package org.example.Telegram.KeyBoard.InLine;
 
-import org.example.ClientDataBase.Dish;
-import org.example.Telegram.LibraryDB.OrderUser;
+import org.example.ClientDataBase.DishDB;
 import org.example.Telegram.Models.Client;
-import org.example.Telegram.Models.Emoji;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 public class InLineKeyboardSelectedDish extends InLineKeyboardButton {
-    private Dish dish;
+    private DishDB dishDB;
 
-    public InLineKeyboardSelectedDish(Dish dish) {
-        this.dish = dish;
+    public InLineKeyboardSelectedDish(DishDB dishDB) {
+        this.dishDB = dishDB;
     }
 
     public void recordAllDataAboutDishes(String categoryName) {
-        dish.getAllDataAboutDishes(categoryName);
+        dishDB.getAllDataAboutDishes(categoryName);
     }
 
     public void setIdDish(int idDish, Client client) {
@@ -23,19 +20,19 @@ public class InLineKeyboardSelectedDish extends InLineKeyboardButton {
     }
 
     private void recordCorrectDish(Client client) {
-        dish.recordCorrectDish(client.getWhereToWalk());
+        dishDB.recordCorrectDish(client.getWhereToWalk());
     }
 
     public SendMessage dishFillData(Client client) {
         initializationInlineKeyboard();
         recordCorrectDish(client);
-        if (dish.getCorrectDish().get(2) == null) {
-            client.setTextInSendMessage("<b>" + "Название: " + "</b>" + dish.getCorrectDish().get(0) + "\n\n" +
-                    "<b>" + "Цена: " + "</b>" + "<b>" + dish.getCorrectDish().get(1) + "/" + dish.getCorrectDish().get(4) + "</b>");
+        if (dishDB.getCorrectDish().getComposition() == null) {
+            client.setTextInSendMessage("<b>" + "Название: " + "</b>" + dishDB.getCorrectDish().getName() + "\n\n" +
+                    "<b>" + "Цена: " + "</b>" + "<b>" + dishDB.getCorrectDish().getDescription() + "/" + dishDB.getCorrectDish().getPrice() + "</b>");
         }else{
-            client.setTextInSendMessage("<b>" + "Название: " + "</b>" + dish.getCorrectDish().get(0) + "\n\n" +
-                    "<b>" + "Состав: " + "</b>" + dish.getCorrectDish().get(2) + "\n\n" +
-                    "<b>" + "Цена: " + "</b>" + "<b>" + dish.getCorrectDish().get(1) + "/" + dish.getCorrectDish().get(4) + "</b>");
+            client.setTextInSendMessage("<b>" + "Название: " + "</b>" + dishDB.getCorrectDish().getName() + "\n\n" +
+                    "<b>" + "Состав: " + "</b>" + dishDB.getCorrectDish().getComposition() + "\n\n" +
+                    "<b>" + "Цена: " + "</b>" + "<b>" + dishDB.getCorrectDish().getDescription() + "/" + dishDB.getCorrectDish().getPrice() + "</b>");
 
         }
         addHelpButton(client);
@@ -47,25 +44,27 @@ public class InLineKeyboardSelectedDish extends InLineKeyboardButton {
 
     @Override
     public void addHelpButton(Client client) {
-        if (client.getWhereToWalk() != dish.getMapDataDishes().entrySet().iterator().next().getKey() && client.getWhereToWalk() != dish.getMapDataDishes().lastKey()) {
-            addButtonStepPrevious(0);
-            addButtonReturnToMenu(1);
-            addButtonRemoveOrder(2);
-            addButtonAddToOrder(3, client);
-            addButtonStepNext(4);
-            rowsInLine.add(rowInLine);
-        } else if (client.getWhereToWalk() == dish.getMapDataDishes().entrySet().iterator().next().getKey()) {
-            addButtonReturnToMenu(0);
-            addButtonRemoveOrder(1);
-            addButtonAddToOrder(2, client);
-            addButtonStepNext(3);
-            rowsInLine.add(rowInLine);
-        } else {
-            addButtonStepPrevious(0);
-            addButtonReturnToMenu(1);
-            addButtonRemoveOrder(2);
-            addButtonAddToOrder(3, client);
-            rowsInLine.add(rowInLine);
-        }
+            if (client.getWhereToWalk() != dishDB.getMapDataDishes().entrySet().iterator().next().getKey() && client.getWhereToWalk() != dishDB.getMapDataDishes().lastKey()) {
+                addButtonStepPrevious(0);
+                addButtonReturnToMenu(1);
+                addButtonRemoveOrder(2);
+                addButtonAddToOrder(3, client);
+                addButtonStepNext(4);
+                rowsInLine.add(rowInLine);
+            } else if (client.getWhereToWalk() == dishDB.getMapDataDishes().entrySet().iterator().next().getKey()) {
+                addButtonReturnToMenu(0);
+                addButtonRemoveOrder(1);
+                addButtonAddToOrder(2, client);
+                if(dishDB.getMapDataDishes().size()!=1)
+                    addButtonStepNext(3);
+                rowsInLine.add(rowInLine);
+            } else {
+                addButtonStepPrevious(0);
+                addButtonReturnToMenu(1);
+                addButtonRemoveOrder(2);
+                addButtonAddToOrder(3, client);
+                rowsInLine.add(rowInLine);
+            }
+
     }
 }

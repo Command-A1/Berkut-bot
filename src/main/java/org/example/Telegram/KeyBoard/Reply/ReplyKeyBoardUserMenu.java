@@ -12,9 +12,9 @@ import java.util.List;
 
 public class ReplyKeyBoardUserMenu extends ReplyKeyBoardButton{
 
-    public SendMessage keyboardUserMenu(Client client) {
+    public SendMessage keyboardUserMenu(Client client, String text) {
         initializeObjectInlineKeyboard();
-        client.setTextInSendMessage("Приступим к заказу!");
+        client.setTextInSendMessage(text);
         rowHorizontal.add(new KeyboardButton("Меню " + Emoji.MENU.get()));
         rowHorizontal.add(new KeyboardButton("Заказ " + Emoji.ORDER_LIST.get()));
 
