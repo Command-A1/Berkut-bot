@@ -1,10 +1,8 @@
 package org.example.Telegram;
 
 
-import org.example.ClientDataBase.DishDB;
-import org.example.ClientDataBase.OrderDB;
-import org.example.ClientDataBase.UserId;
-import org.example.ClientDataBase.UserNumber;
+import org.example.ClientDataBase.*;
+import org.example.ClientDataBase.ViewClient.StatusClientsOrder;
 import org.example.Telegram.KeyBoard.InLine.InLineKeyBoardListDishes;
 import org.example.Telegram.KeyBoard.InLine.InLineKeyboardButtonKitchenCategory;
 import org.example.Telegram.KeyBoard.InLine.InLineKeyboardForOrder;
@@ -25,6 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TelegramBot extends TelegramLongPollingBot {
+    public TelegramBot() {
+        StatusClientsOrder.runThreadOrderClient();
+    }
 
     private SendMessage sendMessage = new SendMessage();
     private InLineKeyboardButtonKitchenCategory categoryDishes;
@@ -157,6 +158,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         new SimpleDateFormat("HH:mm").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000)),
                         new SimpleDateFormat("yyMMddHHmmss").format(new Date(Long.parseLong(String.valueOf(update.getMessage().getDate())) * 1000))))
             jumpToMenu();
+
     }
 
     public void createRequestNumberTable() {
@@ -167,7 +169,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void jumpToMenu() {
         mapIdClient.get(chatId).getOrderUser().clearAllOrder();
-        initializeKeyboardUserMenu("Ваш заказ отправлен ожидайте");
+        initializeKeyboardUserMenu("Ваш заказ отправлен ожидайте" + Emoji.WATCH.get() + "\nНомер заказа: " + Client.getOrdersClient());
     }
 
     private void sendOrderToUser() {
@@ -232,7 +234,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void initializeKeyboardUserMenu(String text) {
-        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(mapIdClient.get(update.getMessage().getChatId()),text));
+        executeMessage(replyKeyBoardUserMenu.keyboardUserMenu(mapIdClient.get(update.getMessage().getChatId()), text));
     }
 
     private void initializeInLineKeyboardCategory() {
@@ -270,7 +272,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(e);
     }
 
-    private void executeMessage(SendMessage message) {
+    public void executeMessage(SendMessage message) {
         try {
             execute(message);
         } catch (TelegramApiException e) {

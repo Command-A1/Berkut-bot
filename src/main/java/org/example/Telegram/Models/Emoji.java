@@ -18,6 +18,8 @@ public enum Emoji {
     WHITE_CHECK_MARK(":white_check_mark:"),
     X(":x:"),
     SMILE_BLUSH(":blush:"),
+    WATCH(":hourglass_flowing_sand:"),
+    BLUSH(":blush:"),
 
     WELCOME(":wave:"),
     CROSS(":x:"),

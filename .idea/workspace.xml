@@ -5,19 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8507145f-71dd-437e-95cd-8caf93876202" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/DishDB.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/ViewClient/ClientMessageOrder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/ViewClient/StatusClientsOrder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/f5221f8f-9db2-4f84-9b2f-7cfbda5bdc4b.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f5221f8f-9db2-4f84-9b2f-7cfbda5bdc4b.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/f5221f8f-9db2-4f84-9b2f-7cfbda5bdc4b/storage_v2/_src_/database/railway.Hf4GOg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f5221f8f-9db2-4f84-9b2f-7cfbda5bdc4b/storage_v2/_src_/database/railway.Hf4GOg/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dish.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/Dish.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/OrderDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/OrderDB.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardButton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardForOrder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardForOrder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardSelectedDish.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardSelectedDish.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/Reply/ReplyKeyBoardUserMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/Reply/ReplyKeyBoardUserMenu.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/LibraryDB/OrderUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/LibraryDB/OrderUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Emoji.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/Models/Emoji.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Telegram/TelegramBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Telegram/TelegramBot.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -60,8 +58,13 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/!GitHub/Berkut-bot",
-    "nodejs_package_manager_path": "npm"
+    "last_opened_file_path": "D:/!GitHub/BerkutWaiter-bot",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
@@ -80,7 +83,7 @@
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.Main" />
-      <module name="Berkut-bot" />
+      <module name="MenuLogics" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="org.example.*" />
@@ -106,6 +109,10 @@
       <workItem from="1691574821337" duration="14830000" />
       <workItem from="1691916281475" duration="81685000" />
       <workItem from="1692349893114" duration="58126000" />
+      <workItem from="1694601905176" duration="1330000" />
+      <workItem from="1694608078930" duration="13021000" />
+      <workItem from="1694874715560" duration="598000" />
+      <workItem from="1695374557376" duration="10397000" />
     </task>
     <servers />
   </component>
@@ -130,6 +137,24 @@
           <url>file://$PROJECT_DIR$/src/main/java/org/example/Telegram/KeyBoard/InLine/InLineKeyboardSelectedDish.java</url>
           <line>57</line>
           <option name="timeStamp" value="151" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/ViewClient/StatusClientsOrder.java</url>
+          <line>32</line>
+          <properties class="org.example.ClientDataBase.ViewClient.StatusClientsOrder" method="outputClientOrderStatus">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="152" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/ClientDataBase/ViewClient/ClientMessageOrder.java</url>
+          <line>22</line>
+          <properties class="org.example.ClientDataBase.ViewClient.ClientMessageOrder" method="sendPhotoWaiterWithMessageOrderId">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="153" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

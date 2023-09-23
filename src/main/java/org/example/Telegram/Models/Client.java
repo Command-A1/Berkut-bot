@@ -1,10 +1,15 @@
 package org.example.Telegram.Models;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.Telegram.LibraryDB.OrderUser;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+
+import java.util.ArrayList;
 
 public class Client {
     private boolean inCategoryUser = false;
@@ -17,6 +22,9 @@ public class Client {
     private String firstName;
     private String nameCategoryTableDataBaseChoosingUser;
     private OrderUser orderUser;
+    @Getter
+    @Setter
+    private static String ordersClient ="";
 
     public Client(Update update) {
         orderUser = new OrderUser();
